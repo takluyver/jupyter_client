@@ -108,6 +108,17 @@ class KernelSpecManager(LoggingConfigurable):
                     self.log.debug("Found kernel %s in %s", kname, kernel_dir)
                     d[kname] = spec
 
+        if NATIVE_KERNEL_NAME not in d:
+            try:
+                from ipykernel.kernelspec import write_kernel_spec
+            except ImportError:
+                self.log.warn("Native kernel spec (%s) not available",
+                              NATIVE_KERNEL_NAME)
+            else:
+                d[NATIVE_KERNEL_NAME] = path = write_kernel_spec()
+                self.log.debug("Native kernel spec (%s) available from %s",
+                               NATIVE_KERNEL_NAME, path)
+
         if self.whitelist:
             # filter if there's a whitelist
             d = {name:spec for name,spec in d.items() if name in self.whitelist}
